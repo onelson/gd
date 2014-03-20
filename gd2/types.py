@@ -70,20 +70,9 @@ ATBAT_TYPES = {
 }
 
 
-class AtBat(object):
-    """An at bat."""
-
-    def __init__(self, **attribs):
-        self.pitches = []
-        for attr, raw_val in attribs.items():
-            val = ATBAT_TYPES[attr](raw_val)
-            setattr(self, attr, val)
-
-
-class Pitch(object):
-    """A pitch."""
-
-    def __init__(self, **attribs):
-        for attr, raw_val in attribs.items():
-            val = PITCH_TYPES[attr](raw_val)
-            setattr(self, attr, val)
+def transform(attributes, types):
+    """Transform the string values of the attribute dictionary into the
+    proper data types."""
+    for attr, raw_val in attributes.items():
+        val = types[attr](raw_val)
+        attributes[attr] = val
