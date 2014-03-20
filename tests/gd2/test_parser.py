@@ -5,14 +5,16 @@ import unittest
 from gd2 import parser
 
 
-class Test_get_player(unittest.TestCase):
-    """Test the gd2.parser.get_player function."""
+class Test_simple_get(unittest.TestCase):
+    """Test the gd2.parser functions which just return attributes."""
 
-    def test_get_player(self):
-        expected = "Greg Maddux"
-        s = stub(attrib=expected)
-        actual = parser.get_player(s)
-        self.assertEqual(actual, expected)
+    def test_get(self):
+        for func in (parser.get_player, parser.get_game):
+            with self.subTest(function=func):
+                expected = "test"
+                s = stub(attrib=expected)
+                actual = func(s)
+                self.assertEqual(actual, expected)
 
 
 class Test_get_plate_umpire(unittest.TestCase):
