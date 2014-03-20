@@ -72,3 +72,11 @@ class Test_get_stadium(unittest.TestCase):
     def test_get_stadium_missing(self):
         tree = stub(find=lambda arg: None)
         self.assertRaises(parser.ParseError, parser.get_stadium, tree)
+
+
+class Test_get_atbats(unittest.TestCase):
+    """Test the gd2.parser.get_atbats function."""
+
+    def test_get_atbats_no_atbats(self):
+        tree = stub(findall=lambda arg: [])
+        self.assertRaises(parser.ParseError, parser.get_atbats, tree)

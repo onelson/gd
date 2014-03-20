@@ -62,5 +62,7 @@ def get_atbats(tree):
         ab = dict(atbat.attrib)
         ab["pitches"] = [pitch.attrib for pitch in pitches]
         result.append(ab)
+    else:
+        raise ParseError("No atbats found.")
 
     return result
