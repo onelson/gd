@@ -1,6 +1,9 @@
 # Vim swp files
 *.swp
 
+# coverage
+htmlcov/*
+
 *.py[cod]
 
 # C extensions
