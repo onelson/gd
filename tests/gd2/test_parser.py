@@ -36,3 +36,39 @@ class Test_get_plate_umpire(unittest.TestCase):
     def test_get_plate_umpire_no_umpires(self):
         tree = stub(findall=lambda arg: [])
         self.assertRaises(parser.ParseError, parser.get_plate_umpire, tree)
+
+
+class Test_get_teams(unittest.TestCase):
+    """Test the gd2.parser.get_teams function."""
+
+    def test_get_teams(self):
+        value = "team name"
+        team = stub(attrib=value)
+        tree = stub(findall=lambda arg: [team, team])
+        actual = parser.get_teams(tree)
+        self.assertEqual(actual, [value, value])
+
+    def test_get_teams_not_two_teams(self):
+        value = "team name"
+        team = stub(attrib=value)
+
+        # We should only ever get two teams.
+        for teams in ([], [team, team, team]):
+            with self.subTest(teams=teams):
+                tree = stub(findall=lambda arg: teams)
+                self.assertRaises(parser.ParseError, parser.get_teams, tree)
+
+
+class Test_get_stadium(unittest.TestCase):
+    """Test the gd2.parser.get_stadium function."""
+
+    def test_get_stadium(self):
+        expected = "Wrigley Field"
+        stadium = stub(attrib=expected)
+        tree = stub(find=lambda arg: stadium)
+        actual = parser.get_stadium(tree)
+        self.assertEqual(actual, expected)
+
+    def test_get_stadium_missing(self):
+        tree = stub(find=lambda arg: None)
+        self.assertRaises(parser.ParseError, parser.get_stadium, tree)

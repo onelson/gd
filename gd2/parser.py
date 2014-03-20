@@ -37,12 +37,19 @@ def get_game(tree):
 def get_teams(tree):
     """Parse game.xml data to find the teams involved."""
     teams = tree.findall(".//team")
+    team_count = len(teams)
+    if team_count != 2:
+        raise ParseError("%d teams found" % team_count)
+
     return [team.attrib for team in teams]
 
 
 def get_stadium(tree):
     """Parse game.xml data to find the stadium."""
     stadium = tree.find(".//stadium")
+    if stadium is None:
+        raise ParseError("Did not find a stadium.")
+
     return stadium.attrib
 
 
