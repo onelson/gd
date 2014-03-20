@@ -1,6 +1,6 @@
-#! /usr/bin/env python3.3
+#! /usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup
 
 setup(name="gameday",
       version="0.0.0",
@@ -8,4 +8,9 @@ setup(name="gameday",
       author="Brian Curtin",
       author_email="brian@python.org",
       packages=["gd2"],
+      install_requires=["beautifulsoup4",
+                        "lxml",
+                        "requests",
+                        "sqlalchemy"],
+      test_suite="tests",
      )
