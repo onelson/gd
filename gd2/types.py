@@ -5,9 +5,9 @@ Types representing the parts of a game in Gameday.
 from datetime import datetime
 
 
-def _to_datetime(input):
+def _to_datetime(timestamp):
     """Given 2013-05-01T19:38:03Z, convert to Python datetime."""
-    value = input[:-1].replace("T", "_")
+    value = timestamp[:-1].replace("T", "_")
     return datetime.strptime(value, "%Y-%m-%d_%H:%M:%S")
 
 
