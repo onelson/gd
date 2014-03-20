@@ -7,6 +7,8 @@ from datetime import datetime
 
 def _to_datetime(timestamp):
     """Given 2013-05-01T19:38:03Z, convert to Python datetime."""
+    if timestamp[-1] != "Z":
+        raise ValueError("Inappropriate timestamp received.")
     value = timestamp[:-1].replace("T", "_")
     return datetime.strptime(value, "%Y-%m-%d_%H:%M:%S")
 
