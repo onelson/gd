@@ -56,13 +56,14 @@ def get_stadium(tree):
 def get_atbats(tree):
     """Parse inning_all.xml data to find the atbats and pitches."""
     atbats = tree.findall(".//atbat")
+    if not atbats:
+        raise ParseError("No atbats found.")
+
     result = []
     for atbat in atbats:
         pitches = atbat.findall(".//pitch")
         ab = dict(atbat.attrib)
         ab["pitches"] = [pitch.attrib for pitch in pitches]
         result.append(ab)
-    else:
-        raise ParseError("No atbats found.")
 
     return result

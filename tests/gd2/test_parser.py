@@ -80,3 +80,17 @@ class Test_get_atbats(unittest.TestCase):
     def test_get_atbats_no_atbats(self):
         tree = stub(findall=lambda arg: [])
         self.assertRaises(parser.ParseError, parser.get_atbats, tree)
+
+    def test_get_atbats(self):
+        expected_pitch = {"type": "fastball"}
+        expected_atbat = {"batter": "Javier Baez"}
+        pitch = stub(attrib=expected_pitch)
+        atbat = stub(findall=lambda arg: [pitch],
+                     attrib=expected_atbat)
+        tree = stub(findall=lambda arg: [atbat])
+
+        actual = parser.get_atbats(tree)
+
+        # Pitches are attached to an atbat as a list, so create ours.
+        expected_atbat["pitches"] = [expected_pitch]
+        self.assertEqual(actual, [expected_atbat])
