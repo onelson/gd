@@ -10,7 +10,6 @@ def _get_urls(roots, match):
     """Given a list of roots, iterate through them and yield links that match.
     If `match` is None, all links are yielded."""
     for root in roots:
-        print(requests)
         response = requests.get(root)
         response.raise_for_status()
 
