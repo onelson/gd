@@ -3,6 +3,7 @@ from urllib.parse import urljoin
 import os
 import unittest
 
+from pretend import stub
 from requests.exceptions import HTTPError
 
 from gd2 import scrape
@@ -65,6 +66,23 @@ class Test_web_scraper(unittest.TestCase):
         expected = []
         actual = list(scrape.web_scraper([]))
         self.assertEqual(actual, expected)
+
+    @patch("gd2.scrape.BeautifulSoup")
+    def test_requests_session(self, mock_BS):
+        response = stub(raise_for_status=lambda: None, content=None)
+        session = stub(get=lambda arg: response)
+
+        root = "http://www.example.com"
+        soup = MagicMock()
+        link1 = MagicMock()
+        val1 = "foo123"
+        soup.find_all.return_value = [link1]
+        link1.get.return_value = val1
+        mock_BS.return_value = soup
+
+        expected = [urljoin(root, "foo123")]
+        rv = scrape.web_scraper([root], session=session)
+        self.assertEqual(list(rv), expected)
 
 
 class Test_filesystem_scraper(unittest.TestCase):
