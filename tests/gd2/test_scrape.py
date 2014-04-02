@@ -111,7 +111,7 @@ class Test_get_urls(unittest.TestCase):
                     None,
                     None]
 
-        def fake_scraper(root, match):
+        def fake_scraper(root, match, session):
             """Just yield back the match, make sure we end up with
             the same amount of items."""
             yield from [match]
