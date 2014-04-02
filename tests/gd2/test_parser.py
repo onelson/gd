@@ -1,6 +1,6 @@
-from pretend import stub
-
 import unittest
+
+from pretend import stub
 
 from gd2 import parser
 
