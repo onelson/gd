@@ -1,13 +1,15 @@
 from urllib.parse import urljoin
+import itertools
+import os
 
 from bs4 import BeautifulSoup
 import requests
 
-ROOT = "http://gd2.mlb.com/components/game/mlb/"
+WEB_ROOT = "http://gd2.mlb.com/components/game/mlb/"
 
 
-def _get_urls(roots, match):
-    """Given a list of roots, iterate through them and yield links that match.
+def web_scraper(roots, match=None):
+    """Yield URLs in a directory which start with `match`.
     If `match` is None, all links are yielded."""
     for root in roots:
         response = requests.get(root)
@@ -20,36 +22,45 @@ def _get_urls(roots, match):
                 yield urljoin(root, url)
 
 
-def get_years(root=ROOT):
+def filesystem_scraper(roots, match=None):
+    """Yield paths in a directory which start with `match`.
+    If `match` is None, all files are yielded."""
+    for root in roots:
+        for name in os.listdir(root):
+            if match is None or name.startswith(match):
+                yield os.path.join(root, name)
+
+
+def get_years(root=WEB_ROOT, source=web_scraper):
     """From the root URL, yield URLs to the available years."""
-    yield from _get_urls([root], "year")
+    yield from source([root], "year")
 
 
-def get_months(years):
+def get_months(years, source=web_scraper):
     """Yield URLs to the available months for every year."""
-    yield from _get_urls(years, "month")
+    yield from source(years, "month")
 
 
-def get_days(months):
+def get_days(months, source=web_scraper):
     """Yield URLs to the available days for every month."""
-    yield from _get_urls(months, "day")
+    yield from source(months, "day")
 
 
-def get_games(days):
+def get_games(days, source=web_scraper):
     """Yield URLs to the available games for every day."""
-    yield from _get_urls(days, "gid")
+    yield from source(days, "gid")
 
 
-def get_files(games):
+def get_files(games, source=web_scraper):
     """Yield URLs to the relevant files for every game."""
     for game in games:
-        yield from _get_urls([game], "players.xml")
-        yield from _get_urls([game], "game.xml")
-        yield from _get_urls([urljoin(game, "inning")], "inning_all.xml")
+        yield from source([game], "players.xml")
+        yield from source([game], "game.xml")
+        yield from source([urljoin(game, "inning")], "inning_all.xml")
 
         # Go another directory deep and get all pitchers and all batters.
-        pitchers = _get_urls([game], "pitchers")
-        yield from _get_urls(pitchers, None)
+        pitchers = source([game], "pitchers")
+        yield from source(pitchers, None)
 
-        batters = _get_urls([game], "batters")
-        yield from _get_urls(batters, None)
+        batters = source([game], "batters")
+        yield from source(batters, None)
