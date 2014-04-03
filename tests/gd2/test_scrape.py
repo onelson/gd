@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 from urllib.parse import urljoin
 import os
 import unittest
@@ -8,13 +8,14 @@ from requests.exceptions import HTTPError
 
 from gd2 import scrape
 
+
 class Test_web_scraper(unittest.TestCase):
     """Test gd2.scrape.web_scraper"""
 
     @patch("requests.get")
     def test_get_exception(self, mock_get):
         mock_get.side_effect = Exception
-        rv = scrape.web_scraper(["lol",])
+        rv = scrape.web_scraper(["lol"])
         self.assertRaises(Exception, next, rv)
 
     @patch("requests.get")
@@ -22,14 +23,14 @@ class Test_web_scraper(unittest.TestCase):
         response = MagicMock()
         response.raise_for_status.side_effect = HTTPError
         mock_get.return_value = response
-        rv = scrape.web_scraper(["lol",])
+        rv = scrape.web_scraper(["lol"])
         self.assertRaises(HTTPError, next, rv)
 
     @patch("requests.get")
     @patch("gd2.scrape.BeautifulSoup")
     def test_bs_raises(self, mock_BS, mock_get):
         mock_BS.side_effect = Exception
-        rv = scrape.web_scraper(["lol",])
+        rv = scrape.web_scraper(["lol"])
         self.assertRaises(Exception, next, rv)
 
     @patch("requests.get")
@@ -38,7 +39,7 @@ class Test_web_scraper(unittest.TestCase):
         soup = MagicMock()
         soup.find_all.return_value = []
         mock_BS.return_value = soup
-        rv = scrape.web_scraper(["lol",])
+        rv = scrape.web_scraper(["lol"])
         self.assertEqual(list(rv), [])
 
     @patch("requests.get")
@@ -59,7 +60,7 @@ class Test_web_scraper(unittest.TestCase):
                                 ("foo", [urljoin(root, "foo123")]),
                                 ("lol", [])):
             with self.subTest(match=match):
-                rv = scrape.web_scraper([root,], match)
+                rv = scrape.web_scraper([root], match)
                 self.assertEqual(list(rv), expected)
 
     def test_no_roots(self):
@@ -99,7 +100,7 @@ class Test_filesystem_scraper(unittest.TestCase):
                                 ("foo", [os.path.join(root, file1)]),
                                 ("lol", [])):
             with self.subTest(match=match):
-                rv = scrape.filesystem_scraper([root,], match)
+                rv = scrape.filesystem_scraper([root], match)
                 self.assertEqual(list(rv), expected)
 
     def test_no_roots(self):
@@ -113,6 +114,7 @@ class Test_get_urls(unittest.TestCase):
 
     def test_get(self):
         expected = "abcdefg"
+
         def fake_scraper(*args):
             yield from expected
 
@@ -137,3 +139,45 @@ class Test_get_urls(unittest.TestCase):
         actual = scrape.get_files(["root"], source=fake_scraper)
         self.assertEqual(list(actual), list(expected))
 
+
+class Test_download(unittest.TestCase):
+    """Test gd2.scrape.download"""
+
+    @patch("requests.Session")
+    @patch("os.makedirs")
+    def test_file(self, mock_makedirs, mock_Session):
+        url = "http://gd2.mlb.com/inning/inning_all.xml"
+        actual_target = "test/gd2.mlb.com/inning/inning_all.xml"
+        content = "content"
+
+        response = MagicMock()
+        response.raise_for_status = MagicMock()
+        response.content = content
+        mock_Session.return_value = response
+
+        mo = mock_open()
+        # Need to patch `open` within the gd2.scrape namespace.
+        with patch("%s.open" % scrape.__name__, mo, create=True) as m:
+            actual = scrape.download([url], "test")
+
+        mo.assert_called_with(actual_target, "w")
+        self.assertEqual(actual, 1)
+
+    @patch("requests.Session")
+    @patch("os.makedirs")
+    def test_directory(self, mock_makedirs, mock_Session):
+        url = "http://gd2.mlb.com/inning/"
+        content = "content"
+
+        response = MagicMock()
+        response.raise_for_status = MagicMock()
+        response.content = content
+        mock_Session.return_value = response
+
+        mo = mock_open()
+        # Need to patch `open` within the gd2.scrape namespace.
+        with patch("%s.open" % scrape.__name__, mo, create=True) as m:
+            actual = scrape.download([url], "test")
+
+        # We bail out early when directories come up.
+        self.assertEqual(actual, 0)

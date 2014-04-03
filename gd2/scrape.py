@@ -1,4 +1,4 @@
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlsplit
 import itertools
 import os
 
@@ -6,6 +6,34 @@ from bs4 import BeautifulSoup
 import requests
 
 WEB_ROOT = "http://gd2.mlb.com/components/game/mlb/"
+
+
+def download(urls, root):
+    """Download `urls` into `root`. Return the count of files downloaded.
+    Each URL is stored as its full URL (minus the scheme)."""
+    session = requests.Session()
+    seen_dirs = set()
+    downloads = 0
+    for url in urls:
+        parts = urlsplit(url)
+        directory, filename = os.path.split(parts.path)
+        # Skip directory pages.
+        if not filename:
+            continue
+
+        target = os.path.join(root, parts.netloc + directory)
+        # Ignore if the target directory already existed.
+        os.makedirs(target, exist_ok=True)
+        seen_dirs.add(target)
+
+        response = session.get(url)
+        response.raise_for_status()
+
+        with open(os.path.join(target, filename), "w") as fh:
+            fh.write(response.content.decode("utf8"))
+            downloads += 1
+
+    return downloads
 
 
 def web_scraper(roots, match=None, session=None):
@@ -59,8 +87,9 @@ def get_files(games, source=web_scraper, session=None):
     for game in games:
         yield from source([game], "players.xml", session)
         yield from source([game], "game.xml", session)
-        yield from source([urljoin(game, "inning")],
-                          "inning_all.xml", session)
+
+        inning = source([game], "inning", session)
+        yield from source(inning, "inning_all.xml", session)
 
         # Go another directory deep and get all pitchers and all batters.
         pitchers = source([game], "pitchers", session)
