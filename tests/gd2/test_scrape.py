@@ -27,33 +27,32 @@ class Test_web_scraper(unittest.TestCase):
         self.assertRaises(HTTPError, next, rv)
 
     @patch("requests.get")
-    @patch("gd2.scrape.BeautifulSoup")
-    def test_bs_raises(self, mock_BS, mock_get):
-        mock_BS.side_effect = Exception
+    @patch("gd2.scrape.html.fromstring")
+    def test_bs_raises(self, mock_fromstring, mock_get):
+        mock_fromstring.side_effect = Exception
         rv = scrape.web_scraper(["lol"])
         self.assertRaises(Exception, next, rv)
 
     @patch("requests.get")
-    @patch("gd2.scrape.BeautifulSoup")
-    def test_no_links(self, mock_BS, mock_get):
-        soup = MagicMock()
-        soup.find_all.return_value = []
-        mock_BS.return_value = soup
+    @patch("gd2.scrape.html.fromstring")
+    def test_no_links(self, mock_fromstring, mock_get):
+        source = MagicMock()
+        source.findall.return_value = []
+        mock_fromstring.return_value = source
         rv = scrape.web_scraper(["lol"])
         self.assertEqual(list(rv), [])
 
     @patch("requests.get")
-    @patch("gd2.scrape.BeautifulSoup")
-    def test_matches(self, mock_BS, mock_get):
+    @patch("gd2.scrape.html.fromstring")
+    def test_matches(self, mock_fromstring, mock_get):
         root = "http://www.example.com"
-        soup = MagicMock()
         link1, link2 = MagicMock(), MagicMock()
-        val1, val2 = "foo123", "bar456"
+        link1.attrib = {"href": "foo123"}
+        link2.attrib = {"href": "bar456"}
 
-        soup.find_all.return_value = [link1, link2]
-        link1.get.return_value = val1
-        link2.get.return_value = val2
-        mock_BS.return_value = soup
+        source = MagicMock()
+        source.findall.return_value = [link1, link2]
+        mock_fromstring.return_value = source
 
         for match, expected in ((None, [urljoin(root, "foo123"),
                                         urljoin(root, "bar456")]),
@@ -68,18 +67,17 @@ class Test_web_scraper(unittest.TestCase):
         actual = list(scrape.web_scraper([]))
         self.assertEqual(actual, expected)
 
-    @patch("gd2.scrape.BeautifulSoup")
-    def test_requests_session(self, mock_BS):
+    @patch("gd2.scrape.html.fromstring")
+    def test_requests_session(self, mock_fromstring):
         response = stub(raise_for_status=lambda: None, content=None)
         session = stub(get=lambda arg: response)
 
         root = "http://www.example.com"
-        soup = MagicMock()
+        source = MagicMock()
         link1 = MagicMock()
-        val1 = "foo123"
-        soup.find_all.return_value = [link1]
-        link1.get.return_value = val1
-        mock_BS.return_value = soup
+        link1.attrib = {"href": "foo123"}
+        source.findall.return_value = [link1]
+        mock_fromstring.return_value = source
 
         expected = [urljoin(root, "foo123")]
         rv = scrape.web_scraper([root], session=session)

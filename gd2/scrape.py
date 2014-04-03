@@ -2,7 +2,7 @@ from urllib.parse import urljoin, urlsplit
 import itertools
 import os
 
-from bs4 import BeautifulSoup
+from lxml import html
 import requests
 
 WEB_ROOT = "http://gd2.mlb.com/components/game/mlb/"
@@ -46,9 +46,10 @@ def web_scraper(roots, match=None, session=None):
             response = requests.get(root)
         response.raise_for_status()
 
-        bs = BeautifulSoup(response.content, "lxml")
-        for link in bs.find_all("a"):
-            url = link.get("href")
+        source = html.fromstring(response.content)
+        a_tags = source.findall(".//a")
+        for a in a_tags:
+            url = a.attrib["href"]
             if match is None or url[slice(0, len(match))] == match:
                 yield urljoin(root, url)
 
