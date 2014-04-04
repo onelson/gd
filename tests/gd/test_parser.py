@@ -2,11 +2,11 @@ import unittest
 
 from pretend import stub
 
-from gd2 import parser
+from gd import parser
 
 
 class Test_simple_get(unittest.TestCase):
-    """Test the gd2.parser functions which just return attributes."""
+    """Test the gd.parser functions which just return attributes."""
 
     def test_get(self):
         for func in (parser.get_player, parser.get_game):
@@ -18,7 +18,7 @@ class Test_simple_get(unittest.TestCase):
 
 
 class Test_get_plate_umpire(unittest.TestCase):
-    """Test the gd2.parser.get_plate_umpire function."""
+    """Test the gd.parser.get_plate_umpire function."""
 
     def test_get_plate_umpire(self):
         expected = {"position": "home", "name": "Gerry Davis"}
@@ -39,7 +39,7 @@ class Test_get_plate_umpire(unittest.TestCase):
 
 
 class Test_get_teams(unittest.TestCase):
-    """Test the gd2.parser.get_teams function."""
+    """Test the gd.parser.get_teams function."""
 
     def test_get_teams(self):
         value = "team name"
@@ -60,7 +60,7 @@ class Test_get_teams(unittest.TestCase):
 
 
 class Test_get_stadium(unittest.TestCase):
-    """Test the gd2.parser.get_stadium function."""
+    """Test the gd.parser.get_stadium function."""
 
     def test_get_stadium(self):
         expected = "Wrigley Field"
@@ -75,7 +75,7 @@ class Test_get_stadium(unittest.TestCase):
 
 
 class Test_get_atbats(unittest.TestCase):
-    """Test the gd2.parser.get_atbats function."""
+    """Test the gd.parser.get_atbats function."""
 
     def test_get_atbats_no_atbats(self):
         tree = stub(findall=lambda arg: [])

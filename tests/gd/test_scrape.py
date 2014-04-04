@@ -6,11 +6,11 @@ import unittest
 from pretend import stub
 from requests.exceptions import HTTPError
 
-from gd2 import scrape
+from gd import scrape
 
 
 class Test_web_scraper(unittest.TestCase):
-    """Test gd2.scrape.web_scraper"""
+    """Test gd.scrape.web_scraper"""
 
     @patch("requests.get")
     def test_get_exception(self, mock_get):
@@ -27,14 +27,14 @@ class Test_web_scraper(unittest.TestCase):
         self.assertRaises(HTTPError, next, rv)
 
     @patch("requests.get")
-    @patch("gd2.scrape.html.fromstring")
+    @patch("gd.scrape.html.fromstring")
     def test_bs_raises(self, mock_fromstring, mock_get):
         mock_fromstring.side_effect = Exception
         rv = scrape.web_scraper(["lol"])
         self.assertRaises(Exception, next, rv)
 
     @patch("requests.get")
-    @patch("gd2.scrape.html.fromstring")
+    @patch("gd.scrape.html.fromstring")
     def test_no_links(self, mock_fromstring, mock_get):
         source = MagicMock()
         source.findall.return_value = []
@@ -43,7 +43,7 @@ class Test_web_scraper(unittest.TestCase):
         self.assertEqual(list(rv), [])
 
     @patch("requests.get")
-    @patch("gd2.scrape.html.fromstring")
+    @patch("gd.scrape.html.fromstring")
     def test_matches(self, mock_fromstring, mock_get):
         root = "http://www.example.com"
         link1, link2 = MagicMock(), MagicMock()
@@ -67,7 +67,7 @@ class Test_web_scraper(unittest.TestCase):
         actual = list(scrape.web_scraper([]))
         self.assertEqual(actual, expected)
 
-    @patch("gd2.scrape.html.fromstring")
+    @patch("gd.scrape.html.fromstring")
     def test_requests_session(self, mock_fromstring):
         response = stub(raise_for_status=lambda: None, content=None)
         session = stub(get=lambda arg: response)
@@ -85,7 +85,7 @@ class Test_web_scraper(unittest.TestCase):
 
 
 class Test_filesystem_scraper(unittest.TestCase):
-    """Test gd2.scrape.filesystem_scraper"""
+    """Test gd.scrape.filesystem_scraper"""
 
     @patch("os.listdir")
     def test_scraper(self, mock_listdir):
@@ -108,7 +108,7 @@ class Test_filesystem_scraper(unittest.TestCase):
 
 
 class Test_get_urls(unittest.TestCase):
-    """Test all gd2.scrape.get_* functions"""
+    """Test all gd.scrape.get_* functions"""
 
     def test_get(self):
         expected = "abcdefg"
@@ -139,13 +139,13 @@ class Test_get_urls(unittest.TestCase):
 
 
 class Test_download(unittest.TestCase):
-    """Test gd2.scrape.download"""
+    """Test gd.scrape.download"""
 
     @patch("requests.Session")
     @patch("os.makedirs")
     def test_file(self, mock_makedirs, mock_Session):
-        url = "http://gd2.mlb.com/inning/inning_all.xml"
-        actual_target = "test/gd2.mlb.com/inning/inning_all.xml"
+        url = "http://gd.mlb.com/inning/inning_all.xml"
+        actual_target = "test/gd.mlb.com/inning/inning_all.xml"
         content = "content"
 
         response = MagicMock()
@@ -154,7 +154,7 @@ class Test_download(unittest.TestCase):
         mock_Session.return_value = response
 
         mo = mock_open()
-        # Need to patch `open` within the gd2.scrape namespace.
+        # Need to patch `open` within the gd.scrape namespace.
         with patch("%s.open" % scrape.__name__, mo, create=True) as m:
             actual = scrape.download([url], "test")
 
@@ -164,7 +164,7 @@ class Test_download(unittest.TestCase):
     @patch("requests.Session")
     @patch("os.makedirs")
     def test_directory(self, mock_makedirs, mock_Session):
-        url = "http://gd2.mlb.com/inning/"
+        url = "http://gd.mlb.com/inning/"
         content = "content"
 
         response = MagicMock()
@@ -173,7 +173,7 @@ class Test_download(unittest.TestCase):
         mock_Session.return_value = response
 
         mo = mock_open()
-        # Need to patch `open` within the gd2.scrape namespace.
+        # Need to patch `open` within the gd.scrape namespace.
         with patch("%s.open" % scrape.__name__, mo, create=True) as m:
             actual = scrape.download([url], "test")
 

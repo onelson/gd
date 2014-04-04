@@ -1,11 +1,11 @@
 from datetime import datetime
 import unittest
 
-from gd2 import types
+from gd import types
 
 
 class Test_transform(unittest.TestCase):
-    """Test the gd2.types.transform function."""
+    """Test the gd.types.transform function."""
 
     def test_transform(self):
         actual = {"test1": "lol", "test2": "123", "test3": "0.1"}
@@ -21,7 +21,7 @@ class Test_transform(unittest.TestCase):
 
 
 class Test_to_datetime(unittest.TestCase):
-    """Test the gd2.types._to_datetime function."""
+    """Test the gd.types._to_datetime function."""
 
     def test__to_datetime(self):
         args = 2013, 5, 1, 19, 38, 3

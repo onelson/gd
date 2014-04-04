@@ -8,6 +8,12 @@ import requests
 WEB_ROOT = "http://gd2.mlb.com/components/game/mlb/"
 
 
+def datetime_to_url(dt):
+    """Convert a Python datetime into the date portion of a Gameday URL"""
+    return "year_{:04}/month_{:02}/day_{:02}".format(dt.year,
+                                                     dt.month, dt.day)
+
+
 def download(urls, root):
     """Download `urls` into `root`. Return the count of files downloaded.
     Each URL is stored as its full URL (minus the scheme)."""
