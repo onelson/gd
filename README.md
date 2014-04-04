@@ -15,7 +15,7 @@ Development is easiest when you use
 [virtualenv](http://www.virtualenv.org/en/latest/)
 
 ```
-git clone git@github.com:briancurtin/gd.git && cd gd/
+git clone git@github.com:yourusername/gd.git && cd gd/
 virtualenv -p python3.4 ../envs/gd
 source ../envs/gd/bin/activate
 pip install tox
