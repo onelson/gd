@@ -83,6 +83,9 @@ CREATE TABLE IF NOT EXISTS atbats (
     des varchar NOT NULL,
     des_es varchar NOT NULL,
     event varchar NOT NULL,
+    score varchar,
+    home_team_runs integer,
+    away_team_runs integer,
     FOREIGN KEY(batter) REFERENCES batters(id),
     FOREIGN KEY(pitcher) REFERENCES pitchers(id)
 );
@@ -100,6 +103,9 @@ CREATE TABLE IF NOT EXISTS pitches (
     tfs_zulu timestamp NOT NULL,
     x float NOT NULL,
     y float NOT NULL,
+    on_1b integer,
+    on_2b integer,
+    on_3b integer,
     sv_id varchar NOT NULL, -- YYMMDD_hhmmss
     start_speed float NOT NULL,
     end_speed float NOT NULL,
