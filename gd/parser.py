@@ -60,7 +60,6 @@ def get_atbats(tree):
     if not atbats:
         raise ParseError("No atbats found.")
 
-    result = []
     for atbat in atbats:
         pitches = atbat.findall(".//pitch")
         pickoffs = atbat.findall(".//po")
@@ -69,6 +68,5 @@ def get_atbats(tree):
         ab["pitches"] = [pitch.attrib for pitch in pitches]
         ab["pickoffs"] = [po.attrib for po in pickoffs]
         ab["runners"] = [runner.attrib for runner in runners]
-        result.append(ab)
 
-    return result
+        yield ab
