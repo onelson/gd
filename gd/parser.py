@@ -14,9 +14,10 @@ def _get_tree(file_name):
     return etree.fromstring(data)
 
 
-def get_player(tree):
-    """Parse a player file and return the player's attributes."""
-    return tree.attrib
+def get_players(tree):
+    """Parse players.xml file and return players and their attributes."""
+    players = tree.findall(".//player")
+    yield from [player.attrib for player in players]
 
 
 def get_plate_umpire(tree):

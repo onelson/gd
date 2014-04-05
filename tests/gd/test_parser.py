@@ -5,16 +5,27 @@ from pretend import stub
 from gd import parser
 
 
-class Test_simple_get(unittest.TestCase):
-    """Test the gd.parser functions which just return attributes."""
+class Test_get_game(unittest.TestCase):
+    """Test the gd.parser.get_game function."""
 
-    def test_get(self):
-        for func in (parser.get_player, parser.get_game):
-            with self.subTest(function=func):
-                expected = "test"
-                s = stub(attrib=expected)
-                actual = func(s)
-                self.assertEqual(actual, expected)
+    def test_get_game(self):
+        expected = "test"
+        s = stub(attrib=expected)
+        actual = parser.get_game(s)
+        self.assertEqual(actual, expected)
+
+
+class Test_get_players(unittest.TestCase):
+    """Test the gd.parser.get_players function."""
+
+    def test_get_players(self):
+        expected = "test"
+        s1 = stub(attrib=expected)
+        s2 = stub(attrib=expected)
+        s3 = stub(attrib=expected)
+        tree = stub(findall=lambda arg: [s1, s2, s3])
+        actual = parser.get_players(tree)
+        self.assertEqual(list(actual), [expected]*3)
 
 
 class Test_get_plate_umpire(unittest.TestCase):
