@@ -42,11 +42,13 @@ class Test_get_plate_umpire(unittest.TestCase):
         expected = {"position": "first", "name": "Ted Barrett"}
         element = stub(attrib=expected)
         tree = stub(findall=lambda arg: [element])
-        self.assertRaises(parser.ParseError, parser.get_plate_umpire, tree)
+        self.assertRaisesRegex(Exception, "No plate umpire found.",
+                               parser.get_plate_umpire, tree)
 
     def test_get_plate_umpire_no_umpires(self):
         tree = stub(findall=lambda arg: [])
-        self.assertRaises(parser.ParseError, parser.get_plate_umpire, tree)
+        self.assertRaisesRegex(Exception, "No plate umpire found.",
+                               parser.get_plate_umpire, tree)
 
 
 class Test_get_teams(unittest.TestCase):
@@ -68,7 +70,9 @@ class Test_get_teams(unittest.TestCase):
             with self.subTest(teams=teams):
                 tree = stub(findall=lambda arg: teams)
                 actual = parser.get_teams(tree)
-                self.assertRaises(parser.ParseError, list, actual)
+                self.assertRaisesRegex(Exception,
+                                       "%d teams found" % len(teams),
+                                       list, actual)
 
 
 class Test_get_stadium(unittest.TestCase):
@@ -83,7 +87,8 @@ class Test_get_stadium(unittest.TestCase):
 
     def test_get_stadium_missing(self):
         tree = stub(find=lambda arg: None)
-        self.assertRaises(parser.ParseError, parser.get_stadium, tree)
+        self.assertRaisesRegex(Exception, "Did not find a stadium.",
+                               parser.get_stadium, tree)
 
 
 class Test_get_atbats(unittest.TestCase):
@@ -92,7 +97,8 @@ class Test_get_atbats(unittest.TestCase):
     def test_get_atbats_no_atbats(self):
         tree = stub(findall=lambda arg: [])
         actual = parser.get_atbats(tree)
-        self.assertRaises(parser.ParseError, list, actual)
+        self.assertRaisesRegex(Exception, "No atbats found.",
+                               list, actual)
 
     def test_get_atbats(self):
         expected_value = {"key": "value"}

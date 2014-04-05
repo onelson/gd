@@ -5,10 +5,6 @@ Parser for MLB's Gameday XML data
 from lxml import etree
 
 
-class ParseError(Exception):
-    pass
-
-
 def _get_tree(file_name):
     data = open(file_name, "r").read()
     return etree.fromstring(data)
@@ -27,7 +23,7 @@ def get_plate_umpire(tree):
         if umpire.attrib["position"] == "home":
             return umpire.attrib
     else:
-        raise ParseError("No plate umpire found.")
+        raise Exception("No plate umpire found.")
 
 
 def get_game(tree):
@@ -40,7 +36,7 @@ def get_teams(tree):
     teams = tree.findall(".//team")
     team_count = len(teams)
     if team_count != 2:
-        raise ParseError("%d teams found" % team_count)
+        raise Exception("%d teams found" % team_count)
 
     yield from [team.attrib for team in teams]
 
@@ -49,7 +45,7 @@ def get_stadium(tree):
     """Parse game.xml data to find the stadium."""
     stadium = tree.find(".//stadium")
     if stadium is None:
-        raise ParseError("Did not find a stadium.")
+        raise Exception("Did not find a stadium.")
 
     return stadium.attrib
 
@@ -58,7 +54,7 @@ def get_atbats(tree):
     """Parse inning_all.xml data to find the atbats and pitches."""
     atbats = tree.findall(".//atbat")
     if not atbats:
-        raise ParseError("No atbats found.")
+        raise Exception("No atbats found.")
 
     for atbat in atbats:
         pitches = atbat.findall(".//pitch")
