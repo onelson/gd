@@ -42,7 +42,7 @@ def get_teams(tree):
     if team_count != 2:
         raise ParseError("%d teams found" % team_count)
 
-    return [team.attrib for team in teams]
+    yield from [team.attrib for team in teams]
 
 
 def get_stadium(tree):

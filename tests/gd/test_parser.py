@@ -57,7 +57,7 @@ class Test_get_teams(unittest.TestCase):
         team = stub(attrib=value)
         tree = stub(findall=lambda arg: [team, team])
         actual = parser.get_teams(tree)
-        self.assertEqual(actual, [value, value])
+        self.assertEqual(list(actual), [value, value])
 
     def test_get_teams_not_two_teams(self):
         value = "team name"
@@ -67,7 +67,8 @@ class Test_get_teams(unittest.TestCase):
         for teams in ([], [team, team, team]):
             with self.subTest(teams=teams):
                 tree = stub(findall=lambda arg: teams)
-                self.assertRaises(parser.ParseError, parser.get_teams, tree)
+                actual = parser.get_teams(tree)
+                self.assertRaises(parser.ParseError, list, actual)
 
 
 class Test_get_stadium(unittest.TestCase):
