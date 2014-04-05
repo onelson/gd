@@ -94,13 +94,5 @@ def get_files(games, source=web_scraper, session=None):
     for game in games:
         yield from source([game], "players.xml", session)
         yield from source([game], "game.xml", session)
-
-        inning = source([game], "inning", session)
-        yield from source(inning, "inning_all.xml", session)
-
-        # Go another directory deep and get all pitchers and all batters.
-        pitchers = source([game], "pitchers", session)
-        yield from source(pitchers, None, session)
-
-        batters = source([game], "batters", session)
-        yield from source(batters, None, session)
+        yield from source([urljoin(game, "inning")],
+                          "inning_all.xml", session)

@@ -125,9 +125,7 @@ class Test_get_urls(unittest.TestCase):
     def test_get_files(self):
         expected = ["players.xml",
                     "game.xml",
-                    "inning_all.xml",
-                    None,
-                    None]
+                    "inning_all.xml"]
 
         def fake_scraper(root, match, session):
             """Just yield back the match, make sure we end up with
