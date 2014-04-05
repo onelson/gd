@@ -62,8 +62,12 @@ def get_atbats(tree):
     result = []
     for atbat in atbats:
         pitches = atbat.findall(".//pitch")
+        pickoffs = atbat.findall(".//po")
+        runners = atbat.findall(".//runner")
         ab = dict(atbat.attrib)
         ab["pitches"] = [pitch.attrib for pitch in pitches]
+        ab["pickoffs"] = [po.attrib for po in pickoffs]
+        ab["runners"] = [runner.attrib for runner in runners]
         result.append(ab)
 
     return result
