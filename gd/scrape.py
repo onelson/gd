@@ -1,5 +1,4 @@
 from urllib.parse import urljoin, urlsplit
-import itertools
 import os
 
 from lxml import html

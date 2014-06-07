@@ -153,7 +153,7 @@ class Test_download(unittest.TestCase):
 
         mo = mock_open()
         # Need to patch `open` within the gd.scrape namespace.
-        with patch("%s.open" % scrape.__name__, mo, create=True) as m:
+        with patch("%s.open" % scrape.__name__, mo, create=True):
             actual = scrape.download([url], "test")
 
         mo.assert_called_with(actual_target, "w")
@@ -172,7 +172,7 @@ class Test_download(unittest.TestCase):
 
         mo = mock_open()
         # Need to patch `open` within the gd.scrape namespace.
-        with patch("%s.open" % scrape.__name__, mo, create=True) as m:
+        with patch("%s.open" % scrape.__name__, mo, create=True):
             actual = scrape.download([url], "test")
 
         # We bail out early when directories come up.
