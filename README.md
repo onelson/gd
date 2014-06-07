@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/briancurtin/gd.svg?branch=master)](https://travis-ci.org/briancurtin/gd)
+
 # About gd
 
 Tools for working with http://gd2.mlb.com/components/game/mlb/
