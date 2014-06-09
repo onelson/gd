@@ -142,8 +142,8 @@ class Test_download(unittest.TestCase):
     @patch("requests.Session")
     @patch("os.makedirs")
     def test_file(self, mock_makedirs, mock_Session):
-        url = "http://gd.mlb.com/inning/inning_all.xml"
-        actual_target = "test/gd.mlb.com/inning/inning_all.xml"
+        urls = ["http://gd.mlb.com/test1.xml", "http://gd.mlb.com/test2.xml"]
+        targets = ["test/gd.mlb.com/test1.xml", "test/gd.mlb.com/test1.xml"]
         content = "content"
 
         response = MagicMock()
@@ -154,10 +154,11 @@ class Test_download(unittest.TestCase):
         mo = mock_open()
         # Need to patch `open` within the gd.scrape namespace.
         with patch("%s.open" % scrape.__name__, mo, create=True):
-            actual = scrape.download([url], "test")
+            actual = scrape.download(urls, "test")
 
-        mo.assert_called_with(actual_target, "w")
-        self.assertEqual(actual, 1)
+        mo.assert_any_call(targets[0], "w")
+        mo.assert_any_call(targets[1], "w")
+        self.assertEqual(actual, len(urls))
 
     @patch("requests.Session")
     @patch("os.makedirs")
