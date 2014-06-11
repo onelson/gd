@@ -13,6 +13,7 @@ import sys
 from gd import scrape
 from gd import utils
 
+
 def do_input():
     pass
 
