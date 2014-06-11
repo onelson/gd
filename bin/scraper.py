@@ -21,7 +21,7 @@ def do_parse():
     pass
 
 
-def do_scrape(begin=None, end=None):
+def do_scrape(cache, begin=None, end=None):
     """Run the scraper over the range [begin, end]
 
     If no beginning is given, scraping starts from the root.
@@ -42,9 +42,6 @@ def do_scrape(begin=None, end=None):
         stop = urljoin(scrape.WEB_ROOT,
                        scrape.datetime_to_url(end, end_parts))
 
-    print("Start: ", start)
-    print("Start: ", stop)
-
     session = requests.Session()
 
     all_years = scrape.get_years(session=session)
@@ -52,6 +49,16 @@ def do_scrape(begin=None, end=None):
 
     all_months = scrape.get_months(inc_years, session=session)
     inc_months = utils.get_inclusive_urls(all_months, start, stop)
+
+    all_days = scrape.get_days(inc_months, session=session)
+    inc_days = utils.get_inclusive_urls(all_days, start, stop)
+
+    games = scrape.get_games(inc_days, session=session)
+    files = scrape.get_files(games, session=session)
+
+    count = scrape.download(files, cache)
+    print("{} files downloaded".format(count))
+
 
 def get_args():
     """Return command line arguments as parsed by argparse."""
@@ -61,7 +68,7 @@ def get_args():
     parser.add_argument("-e", "--end", dest="end", type=str,
                         help="Ending date in %Y-%m-%d format")
     parser.add_argument("-c", "--cache", dest="cache", type=str,
-                        help="Local cache directory", default=False)
+                        help="Local cache directory", default=None)
     parser.add_argument("-d", "--daemon", dest="daemon", action="store_true",
                         default=False, help="Run %(prog)s as a daemon.")
 
@@ -70,7 +77,7 @@ def get_args():
 
 def main():
     args = get_args()
-    do_scrape(args.begin, args.end)
+    do_scrape(args.cache, args.begin, args.end)
 
     if args.daemon:
         run_daemon()
