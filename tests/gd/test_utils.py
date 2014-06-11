@@ -44,3 +44,35 @@ class Test_get_boundary(unittest.TestCase):
         actual_dt, actual_parts = utils.get_boundary(year)
         self.assertEqual(actual_dt, expected_dt)
         self.assertEqual(actual_parts, expected_parts)
+
+
+class Test_get_inclusive_urls(unittest.TestCase):
+
+    def _test_range(self, start, stop, expected):
+        urls = ["a/a/a", "a/b/a", "a/c/a", "a/d/a", "a/e/a"]
+        actual = utils.get_inclusive_urls(urls, start, stop)
+        self.assertEqual(list(actual), expected)
+
+    def test_early_range(self):
+        start = "a/a"
+        stop = "a/c"
+        expected = ["a/a/a", "a/b/a", "a/c/a"]
+        self._test_range(start, stop, expected)
+
+    def test_middle_range(self):
+        start = "a/b"
+        stop = "a/d"
+        expected = ["a/b/a", "a/c/a", "a/d/a"]
+        self._test_range(start, stop, expected)
+
+    def test_late_range(self):
+        start = "a/c"
+        stop = "a/e"
+        expected = ["a/c/a", "a/d/a", "a/e/a"]
+        self._test_range(start, stop, expected)
+
+    def test_no_matcing_range(self):
+        start = "a/f"
+        stop = "a/g"
+        expected = []
+        self._test_range(start, stop, expected)

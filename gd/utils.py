@@ -16,3 +16,20 @@ def get_boundary(date):
             continue
     else:
         return None, 0
+
+
+def get_inclusive_urls(urls, start, stop):
+    """Yield URLs which are of the range [start, stop]"""
+    in_range = False
+    out_range = False
+    for url in urls:
+        # Check both that a URL contains or is contained within one of
+        # the boundaries. This is necessary as deeper links come.
+        if url in start or start in url:
+            in_range = True
+        if url in stop or stop in url:
+            out_range = True
+        if in_range:
+            yield url
+        if out_range:
+            break

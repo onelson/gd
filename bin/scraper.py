@@ -48,24 +48,10 @@ def do_scrape(begin=None, end=None):
     session = requests.Session()
 
     all_years = scrape.get_years(session=session)
+    inc_years = utils.get_inclusive_urls(all_years, start, stop)
 
-    def get_inclusive_years(years, start, stop):
-        in_range = False
-        out_range = False
-        for year in years:
-            if year in start:
-                in_range = True
-            if year in stop:
-               out_range = True
-            if in_range:
-                yield year
-            if out_range:
-                break
-
-    inc_years = get_inclusive_years(all_years, start, stop)
-    for year in inc_years:
-        print(year)
-
+    all_months = scrape.get_months(inc_years, session=session)
+    inc_months = utils.get_inclusive_urls(all_months, start, stop)
 
 def get_args():
     """Return command line arguments as parsed by argparse."""
