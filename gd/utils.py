@@ -1,4 +1,6 @@
 from datetime import datetime
+import logging
+import os
 
 
 def get_boundary(date):
@@ -33,3 +35,27 @@ def get_inclusive_urls(urls, start, stop):
             yield url
         if out_range:
             break
+
+
+def setup_logging(filename=None):
+    """Setup and return a logger"""
+    level = logging.DEBUG if os.environ.get("DEBUG", False) else logging.INFO
+
+    log = logging.getLogger("gd")
+    log.setLevel(level)
+
+    formatter = logging.Formatter("%(asctime)s | %(name)s | "
+                                  "%(levelname)s | %(message)s")
+
+    console = logging.StreamHandler()
+    console.setLevel(level)
+    console.setFormatter(formatter)
+    log.addHandler(console)
+
+    if filename is not None:
+        file_handler = logging.FileHandler(filename)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(formatter)
+        log.addHandler(file_handler)
+
+    return log

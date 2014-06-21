@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from urllib.parse import urljoin
 import argparse
 import asyncio
@@ -12,6 +12,8 @@ import sys
 
 from gd import scrape
 from gd import utils
+
+log = utils.setup_logging("scraper.log")
 
 
 def do_input():
@@ -26,7 +28,11 @@ def do_scrape(cache, begin=None, end=None):
     """Run the scraper over the range [begin, end]
 
     If no beginning is given, scraping starts from the root.
-    If no ending is given, scraping ends at the current date."""
+    If no ending is given, scraping ends at the yesterday's date.
+    Note: end=yesterday because the schedule is pre-loaded, so scraping
+    for today would mean having to account for a game existing but no files
+    available."""
+    start_scrape = datetime.now()
     begin, begin_parts = utils.get_boundary(begin)
     end, end_parts = utils.get_boundary(end)
 
@@ -37,8 +43,8 @@ def do_scrape(cache, begin=None, end=None):
                         scrape.datetime_to_url(begin, begin_parts))
 
     if end is None:
-        stop = urljoin(scrape.WEB_ROOT,
-                       scrape.datetime_to_url(datetime.today()))
+        stop = urljoin(scrape.WEB_ROOT, scrape.datetime_to_url(
+                       datetime.today() - timedelta(days=1)))
     else:
         stop = urljoin(scrape.WEB_ROOT,
                        scrape.datetime_to_url(end, end_parts))
@@ -57,8 +63,13 @@ def do_scrape(cache, begin=None, end=None):
     games = scrape.get_games(inc_days, session=session)
     files = scrape.get_files(games, session=session)
 
-    count = scrape.download(files, cache)
-    print("{} files downloaded".format(count))
+    count, fails = scrape.download(files, cache)
+    end_scrape = datetime.now()
+    log.info("%d files downloaded in %s", count,
+             str(end_scrape - start_scrape))
+    if fails:
+        for url in fails:
+            log.error("failed to download %s", url)
 
 
 def get_args():

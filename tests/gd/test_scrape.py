@@ -4,7 +4,7 @@ import os
 import unittest
 
 from pretend import stub
-from requests.exceptions import HTTPError
+from requests import HTTPError
 
 from gd import scrape
 
@@ -24,7 +24,7 @@ class Test_web_scraper(unittest.TestCase):
         response.raise_for_status.side_effect = HTTPError
         mock_get.return_value = response
         rv = scrape.web_scraper(["lol"])
-        self.assertRaises(HTTPError, next, rv)
+        self.assertEqual(list(rv), [])
 
     @patch("requests.get")
     @patch("gd.scrape.html.fromstring")
@@ -139,45 +139,58 @@ class Test_get_urls(unittest.TestCase):
 class Test_download(unittest.TestCase):
     """Test gd.scrape.download"""
 
-    @patch("requests.Session")
+    @patch("requests.Session.get")
     @patch("os.makedirs")
-    def test_file(self, mock_makedirs, mock_Session):
+    def test_file(self, mock_makedirs, mock_get):
         urls = ["http://gd.mlb.com/test1.xml", "http://gd.mlb.com/test2.xml"]
         targets = ["test/gd.mlb.com/test1.xml", "test/gd.mlb.com/test1.xml"]
         content = "content"
 
         response = MagicMock()
         response.raise_for_status = MagicMock()
-        response.content = content
-        mock_Session.return_value = response
+        response.content.side_effect = content
+        mock_get.return_value = response
 
         mo = mock_open()
         # Need to patch `open` within the gd.scrape namespace.
         with patch("%s.open" % scrape.__name__, mo, create=True):
-            actual = scrape.download(urls, "test")
+            actual_count, actual_fails = scrape.download(urls, "test")
 
         mo.assert_any_call(targets[0], "w")
         mo.assert_any_call(targets[1], "w")
-        self.assertEqual(actual, len(urls))
+        self.assertEqual(actual_count, len(urls))
+        self.assertEqual(actual_fails, [])
 
-    @patch("requests.Session")
+    @patch("requests.Session.get")
     @patch("os.makedirs")
-    def test_directory(self, mock_makedirs, mock_Session):
+    def test_directory(self, mock_makedirs, mock_get):
         url = "http://gd.mlb.com/inning/"
-        content = "content"
 
         response = MagicMock()
         response.raise_for_status = MagicMock()
-        response.content = content
-        mock_Session.return_value = response
+        mock_get.return_value = response
 
         mo = mock_open()
         # Need to patch `open` within the gd.scrape namespace.
         with patch("%s.open" % scrape.__name__, mo, create=True):
-            actual = scrape.download([url], "test")
+            actual_count, actual_fails = scrape.download([url], "test")
 
         # We bail out early when directories come up.
-        self.assertEqual(actual, 0)
+        self.assertEqual(actual_count, 0)
+        self.assertEqual(actual_fails, [])
+
+    @patch("requests.Session.get")
+    def test_HTTPError(self, mock_get):
+        url = "http://gd.mlb.com/inning/inning_all.xml"
+
+        response = MagicMock()
+        response.raise_for_status = MagicMock(side_effect=HTTPError)
+        mock_get.return_value = response
+
+        actual_count, actual_fails = scrape.download([url], "test")
+
+        self.assertEqual(actual_count, 0)
+        self.assertEqual(actual_fails, [url])
 
 
 class Test_datetime_to_url(unittest.TestCase):

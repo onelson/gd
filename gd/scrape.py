@@ -1,10 +1,13 @@
 from urllib.parse import urljoin, urlsplit
+import logging
 import os
 
 from lxml import html
 import requests
 
 WEB_ROOT = "http://gd2.mlb.com/components/game/mlb/"
+
+log = logging.getLogger(__name__)
 
 
 def datetime_to_url(dt, parts=3):
@@ -18,8 +21,8 @@ def download(urls, root):
     """Download `urls` into `root`. Return the count of files downloaded.
     Each URL is stored as its full URL (minus the scheme)."""
     session = requests.Session()
-    seen_dirs = set()
     downloads = 0
+    fails = []
     for url in urls:
         parts = urlsplit(url)
         directory, filename = os.path.split(parts.path)
@@ -30,16 +33,21 @@ def download(urls, root):
         target = os.path.join(root, parts.netloc + directory)
         # Ignore if the target directory already existed.
         os.makedirs(target, exist_ok=True)
-        seen_dirs.add(target)
 
         response = session.get(url)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            log.error("download error: %s raised %s", url, str(exc))
+            fails.append(url)
+            continue
 
         with open(os.path.join(target, filename), "w") as fh:
             fh.write(response.content.decode("utf8"))
+            log.debug("downloaded %s", url)
             downloads += 1
 
-    return downloads
+    return downloads, fails
 
 
 def web_scraper(roots, match=None, session=None):
@@ -50,7 +58,11 @@ def web_scraper(roots, match=None, session=None):
             response = session.get(root)
         else:
             response = requests.get(root)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except requests.HTTPError as exc:
+            log.error("web_scraper error: %s raised %s", root, str(exc))
+            continue
 
         source = html.fromstring(response.content)
         a_tags = source.findall(".//a")

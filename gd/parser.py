@@ -2,13 +2,6 @@
 Parser for MLB's Gameday XML data
 """
 
-from lxml import etree
-
-
-def _get_tree(file_name):
-    data = open(file_name, "r").read()
-    return etree.fromstring(data)
-
 
 def get_players(tree):
     """Parse players.xml file and return players and their attributes."""
