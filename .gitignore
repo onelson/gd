@@ -1,6 +1,10 @@
 # Vim swp files
 *.swp
 
+# IDE project files
+*.iml
+.idea
+
 # coverage
 htmlcov/*
 
