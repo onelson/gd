@@ -27,14 +27,14 @@ class Test_web_scraper(unittest.TestCase):
         self.assertEqual(list(rv), [])
 
     @patch("requests.get")
-    @patch("gd.scrape.html.fromstring")
+    @patch("gd.scrape.ElementTree.fromstring")
     def test_bs_raises(self, mock_fromstring, mock_get):
         mock_fromstring.side_effect = Exception
         rv = scrape.web_scraper(["lol"])
         self.assertRaises(Exception, next, rv)
 
     @patch("requests.get")
-    @patch("gd.scrape.html.fromstring")
+    @patch("gd.scrape.ElementTree.fromstring")
     def test_no_links(self, mock_fromstring, mock_get):
         source = MagicMock()
         source.findall.return_value = []
@@ -43,7 +43,7 @@ class Test_web_scraper(unittest.TestCase):
         self.assertEqual(list(rv), [])
 
     @patch("requests.get")
-    @patch("gd.scrape.html.fromstring")
+    @patch("gd.scrape.ElementTree.fromstring")
     def test_matches(self, mock_fromstring, mock_get):
         root = "http://www.example.com"
         link1, link2 = MagicMock(), MagicMock()
@@ -67,7 +67,7 @@ class Test_web_scraper(unittest.TestCase):
         actual = list(scrape.web_scraper([]))
         self.assertEqual(actual, expected)
 
-    @patch("gd.scrape.html.fromstring")
+    @patch("gd.scrape.ElementTree.fromstring")
     def test_requests_session(self, mock_fromstring):
         response = stub(raise_for_status=lambda: None, content=None)
         session = stub(get=lambda arg: response)

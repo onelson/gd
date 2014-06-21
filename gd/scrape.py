@@ -1,8 +1,8 @@
 from urllib.parse import urljoin, urlsplit
+from xml.etree import ElementTree
 import logging
 import os
 
-from lxml import html
 import requests
 
 WEB_ROOT = "http://gd2.mlb.com/components/game/mlb/"
@@ -64,7 +64,7 @@ def web_scraper(roots, match=None, session=None):
             log.error("web_scraper error: %s raised %s", root, str(exc))
             continue
 
-        source = html.fromstring(response.content)
+        source = ElementTree.fromstring(response.content)
         a_tags = source.findall(".//a")
         for a in a_tags:
             url = a.attrib["href"]
